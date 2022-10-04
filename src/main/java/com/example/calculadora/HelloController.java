@@ -6,6 +6,10 @@ import javafx.scene.control.Button;
 import javafx.scene.control.Label;
 import javafx.scene.control.TextField;
 
+import javax.script.ScriptEngine;
+import javax.script.ScriptEngineManager;
+import javax.script.ScriptException;
+
 public class HelloController {
     @FXML
     private Button button0;
@@ -46,26 +50,51 @@ public class HelloController {
     @FXML
     private Button buttonTrans;
     @FXML
-    private TextField fieldNumbers;
+    private TextField textfieldResult;
 
-    public void cleanScreen(){
+    private boolean operationOn = true;
+    private double lastOperation = 0;
 
+    public void cleanScreen() {
+        textfieldResult.setText("");
+        operationOn = true;
     }
 
-    public void makeOperation(){
-
+    public void deleteValue() {
+        if (!(textfieldResult.getText().length() == 0)) {
+            textfieldResult.setText(textfieldResult.getText().substring(0, textfieldResult.getText().length() - 1));
+        }
     }
 
-    public void delValue(){
-
+    public void getLastResult() {
+        if (!(lastOperation == 0)) {
+            textfieldResult.setText(textfieldResult.getText() + lastOperation);
+        }
     }
 
-    public void addValues(ActionEvent event){
-
+    public void addValue(javafx.event.ActionEvent actionEvent) {
+        textfieldResult.setText(textfieldResult.getText() + ((Button) actionEvent.getSource()).getText());
+        operationOn = true;
     }
 
-    public void addOperation(ActionEvent event){
+    public void addOperation(javafx.event.ActionEvent actionEvent) {
+        if (operationOn) {
+            textfieldResult.setText(textfieldResult.getText() + ((Button) actionEvent.getSource()).getText());
+            operationOn = false;
+        }
+    }
 
+    public void makeOperation() {
+        String operationS = textfieldResult.getText();
+
+        ScriptEngine engine = new ScriptEngineManager().getEngineByName("rhino");
+        try {
+            Object operation = engine.eval(textfieldResult.getText().replaceAll("x", "*"));
+            textfieldResult.setText("" + operation);
+            lastOperation = Double.parseDouble(textfieldResult.getText());
+        } catch (ScriptException e) {
+            textfieldResult.setText("");
+        }
     }
 
 }
